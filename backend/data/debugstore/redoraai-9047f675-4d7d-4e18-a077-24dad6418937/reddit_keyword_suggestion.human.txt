@@ -1,0 +1,6 @@
+Product Information:
+ProductName: RedoraAI
+ProductDescription: RedoraAI helps businesses find high-intent customer conversations on Reddit. It uses AI to monitor relevant subreddits, identify users discussing problems your product solves, and surface engagement opportunities in real time. Teams can join authentic discussions, build trust, generate qualified leads, and grow through community-driven marketing instead of cold outreach.
+
+Product And Customer Target Persona:
+TargetCustomerPersona: SaaS founders, indie hackers, startup teams, marketers, agencies, and sales professionals seeking organic lead generation through Reddit. They want to find potential customers discussing relevant problems, engage authentically in communities, and convert conversations into qualified leads.

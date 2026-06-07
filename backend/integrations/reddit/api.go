@@ -158,6 +158,10 @@ func (r *Client) GetSubRedditByName(ctx context.Context, name string) (*SubReddi
 	reqURL = fmt.Sprintf("%s/r/%s/about/rules.json", r.baseURL, name)
 	resp, err = r.doRequest(ctx, http.MethodGet, reqURL, nil)
 	if err != nil {
+		if errors.Is(err, ErrForbidden) || errors.Is(err, ErrUnAuthorized) {
+			r.logger.Warn("unable to fetch subreddit rules, returning partial subreddit details", zap.Error(err), zap.String("subreddit", name))
+			return &response.Data, nil
+		}
 		return nil, err
 	}
 	defer resp.Body.Close()
@@ -167,7 +171,8 @@ func (r *Client) GetSubRedditByName(ctx context.Context, name string) (*SubReddi
 	}
 
 	if err := decodeJSON(resp.Body, &responseRules); err != nil {
-		return nil, err
+		r.logger.Warn("failed to decode subreddit rules, returning partial subreddit details", zap.Error(err), zap.String("subreddit", name))
+		return &response.Data, nil
 	}
 
 	response.Data.Rules = responseRules.Rules

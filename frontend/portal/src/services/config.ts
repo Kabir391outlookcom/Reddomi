@@ -19,10 +19,10 @@ const getCodespacesUrl = (port: string) => {
 }
 
 // this is present on build (i.e. http://api.freightstream.ai)
-export const CONFIG_API_URI = process.env.NEXT_PUBLIC_API_URL || getCodespacesUrl('8787') || 'http://localhost:8787'
+export const CONFIG_API_URI = getCodespacesUrl('8787') || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787'
 
 // this is present on build (i.e. http://app.freightstream.ai)
-export const CONFIG_PORTAL_URI = process.env.NEXT_PUBLIC_APP_URL || getCodespacesUrl('3000') || 'http://localhost:3000'
+export const CONFIG_PORTAL_URI = getCodespacesUrl('3000') || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
 export class ConfigProvider {
   config: Config

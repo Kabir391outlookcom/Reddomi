@@ -20,7 +20,7 @@ const getCodespacesApiUrl = () => {
   return `${protocol}//127.0.0.1:8787`
 }
 
-const apiEndpointUrl = process.env.NEXT_PUBLIC_API_URL || getCodespacesApiUrl() || 'http://localhost:8787'
+const apiEndpointUrl = getCodespacesApiUrl() || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8787'
 
 export const API_ENDPOINT_URL = apiEndpointUrl
 

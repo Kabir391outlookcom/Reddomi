@@ -16,6 +16,7 @@ import (
 	pbcore "github.com/shank318/doota/pb/doota/core/v1"
 	pbportal "github.com/shank318/doota/pb/doota/portal/v1"
 	"github.com/shank318/doota/services"
+	redditint "github.com/shank318/doota/integrations/reddit"
 	"github.com/shank318/doota/utils"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -373,6 +374,9 @@ func (p *Portal) AddSource(ctx context.Context, c *connect.Request[pbportal.AddS
 	}
 	err = redditService.CreateSubReddit(ctx, source)
 	if err != nil {
+		if errors.Is(err, redditint.ErrForbidden) || errors.Is(err, redditint.ErrUnAuthorized) || strings.Contains(err.Error(), redditint.ErrForbidden.Error()) || strings.Contains(err.Error(), redditint.ErrUnAuthorized.Error()) {
+			return nil, status.New(codes.PermissionDenied, "subreddit cannot be accessed or requires authentication").Err()
+		}
 		return nil, err
 	}
 

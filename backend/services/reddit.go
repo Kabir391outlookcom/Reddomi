@@ -99,27 +99,35 @@ func (r redditService) CreateSubReddit(ctx context.Context, source *models.Sourc
 		// Fetch the subreddit details by URL from Reddit API
 		subRedditDetails, err := r.redditClient.GetSubRedditByName(ctx, source.Name)
 		if err != nil {
-			return err
-		}
-
-		// Fill in the fields in models.Source using fetched details
-		if subRedditDetails.ID != "" {
-			source.ExternalID = utils.Ptr(subRedditDetails.ID)
-		}
-		source.Name = subRedditDetails.DisplayName
-		source.Description = subRedditDetails.Description
-		metadata := models.SubRedditMetadata{
-			Title:     utils.Ptr(subRedditDetails.Title),
-			CreatedAt: time.Unix(int64(subRedditDetails.CreatedAt), 0),
-		}
-
-		for _, rule := range subRedditDetails.Rules {
-			if strings.TrimSpace(rule.Description) != "" {
-				metadata.Rules = append(metadata.Rules, rule.Description)
+			if errors.Is(err, reddit.ErrForbidden) || errors.Is(err, reddit.ErrUnAuthorized) || strings.Contains(err.Error(), reddit.ErrForbidden.Error()) || strings.Contains(err.Error(), reddit.ErrUnAuthorized.Error()) {
+				r.logger.Warn("unable to fetch subreddit details, creating source with only name", zap.Error(err), zap.String("subreddit", source.Name))
+				source.Metadata = models.SubRedditMetadata{
+					Title:     utils.Ptr(source.Name),
+					CreatedAt: time.Now(),
+				}
+			} else {
+				return err
 			}
-		}
+		} else {
+			// Fill in the fields in models.Source using fetched details
+			if subRedditDetails.ID != "" {
+				source.ExternalID = utils.Ptr(subRedditDetails.ID)
+			}
+			source.Name = subRedditDetails.DisplayName
+			source.Description = subRedditDetails.Description
+			metadata := models.SubRedditMetadata{
+				Title:     utils.Ptr(subRedditDetails.Title),
+				CreatedAt: time.Unix(int64(subRedditDetails.CreatedAt), 0),
+			}
 
-		source.Metadata = metadata
+			for _, rule := range subRedditDetails.Rules {
+				if strings.TrimSpace(rule.Description) != "" {
+					metadata.Rules = append(metadata.Rules, rule.Description)
+				}
+			}
+
+			source.Metadata = metadata
+		}
 	}
 
 	source.SourceType = models.SourceTypeSUBREDDIT
