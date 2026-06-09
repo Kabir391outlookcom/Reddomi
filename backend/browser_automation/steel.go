@@ -22,15 +22,13 @@ func NewSteelBrowser(token string, logger *zap.Logger) BrowserAutomationProvider
 }
 
 type createSession struct {
-	UserAgent string `json:"userAgent"`
-	UseProxy  struct {
+	UserAgent string `json:"userAgent,omitempty"`
+	UseProxy  *struct {
 		GeoLocation struct {
 			Country string `json:"country"`
 		} `json:"geolocation"`
-	} `json:"useProxy"`
-	//UseProxy     bool `json:"useProxy"`
-	SolveCaptcha bool `json:"solveCaptcha"`
-	//Region        string `json:"region"`
+	} `json:"useProxy,omitempty"`
+	SolveCaptcha bool `json:"solveCaptcha,omitempty"`
 	Timeout       int `json:"timeout"` // ms
 	StealthConfig struct {
 		HumanizeInteractions     bool `json:"humanizeInteractions"`
@@ -59,7 +57,7 @@ func (r steelBrowserClient) GetCDPInfo(ctx context.Context, input CDPInput) (*CD
 		payload := createSession{
 			Timeout: 3 * 60 * 1000, // 3 minutes in ms
 		}
-		payload.UseProxy.GeoLocation.Country = input.GetCountryCode()
+		// Steel hobby plan does not support Steel proxies, so we omit useProxy here.
 		payload.StealthConfig.HumanizeInteractions = true
 
 		jsonData, err := json.Marshal(payload)
